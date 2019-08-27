@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">WaterMac</string>
+    <string name="fill_water">灌装</string>
+    <string name="pause">暂停</string>
+    <string name="barrel_size">桶装</string>
+    <string name="bottle_size">瓶装</string>
+    <string name="fatal_error">严重错误</string>
+</resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Button
+        android:id="@+id/btnBarrel"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="150dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:textSize="30sp"
+        android:background="@drawable/water_fill_start_bg"
+        android:text="@string/barrel_size"/>
+    <Button
+        android:id="@+id/btnBottle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="150dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:text="@string/bottle_size"
+        android:textSize="30sp"
+        android:background="@drawable/water_fill_start_bg"
+        />
+</android.support.constraint.ConstraintLayout>
