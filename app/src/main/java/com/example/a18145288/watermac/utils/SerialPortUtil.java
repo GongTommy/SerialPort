@@ -1,5 +1,6 @@
 package com.example.a18145288.watermac.utils;
 
+import android.os.Looper;
 import android.util.Log;
 import java.io.File;
 import java.io.IOException;
@@ -45,15 +46,14 @@ public class SerialPortUtil {
      * 关闭串口中的输入输出流
      */
     public void closeSerialPort() {
-        Log.i("test", "关闭串口");
         try {
+            isStart = false;
             if (inputStream != null) {
                 inputStream.close();
             }
             if (outputStream != null) {
                 outputStream.close();
             }
-            isStart = false;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,7 +105,6 @@ public class SerialPortUtil {
 
     private void getSerialPort() {
         if (mReceiveThread == null) {
-
             mReceiveThread = new ReceiveThread();
         }
         mReceiveThread.start();
@@ -119,27 +118,25 @@ public class SerialPortUtil {
         public void run() {
             super.run();
             while (isStart) {
+                Log.i(TAG, "Thread Name:" + Thread.currentThread().getName());
                 if (inputStream == null) {
                     return;
                 }
                 byte[] readData = new byte[1024];
-                try {//
+                try {
                     int size = inputStream.read(readData);
-                    Log.i(TAG, "size:" + size);
-                    for(int i = 0; i < size; i++){
-                        Log.i(TAG, "item" + i + ":" + readData[i]);
-                    }
                     if (size > 0) {
                         String readString = DataUtils.ByteArrToHex(readData, 0, size);
-                        onReceiveComMsg.receiveComMsg(readString);
-                        Log.i(TAG, "receiver msg :" + readString);
+                        Log.i(TAG, "Receiver Msg:" + readString + " Thread Name:" + Thread.currentThread().getName());
+                        if (onReceiveComMsg != null){
+                            onReceiveComMsg.receiveComMsg(readString);
+                        }
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-
         }
     }
 

@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ImageView
         android:id="@+id/iv_top_bar"
@@ -18,6 +19,15 @@
         app:layout_constraintVertical_weight="1"
         app:layout_constraintTop_toBottomOf="@id/iv_top_bar"
         app:layout_constraintBottom_toTopOf="@id/ivPayLogo">
+        <TextView
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="50sp"
+            android:textColor="@color/color_35d2f4"
+            android:text="请先扫码支付，再接水！"/>
         <ImageView
             android:id="@+id/ivQrCodeBg"
             android:layout_alignParentTop="true"

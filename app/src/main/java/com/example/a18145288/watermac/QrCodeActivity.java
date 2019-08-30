@@ -14,10 +14,14 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.a18145288.watermac.adapter.ImagesPagerAdapter;
 import com.example.a18145288.watermac.utils.SerialPortUtil;
@@ -111,7 +115,7 @@ public class QrCodeActivity extends Activity {
                     case MotionEvent.ACTION_UP:
                         ivNext.setImageResource(R.mipmap.next_normal);
                         startActivity(new Intent(QrCodeActivity.this, MainActivity.class));
-//                        finish();
+                        finish();
                         return true;
                 }
                 return false;
@@ -124,8 +128,26 @@ public class QrCodeActivity extends Activity {
             public void receiveComMsg(String msg) {
                 //接受串口消息
                 if (msg != null){//避免多次跳转
-                    if (msg.equals("FC01") || msg.equals("fc01")){
+                    if (msg.contains("FC01") || msg.contains("fc01")){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast t = Toast.makeText(getApplication(), "支付成功", Toast.LENGTH_LONG);
+                                t.setGravity(Gravity.CENTER, 0, 0);
+                                LinearLayout linearLayout = (LinearLayout) t.getView();
+                                if (linearLayout != null){
+                                    TextView tv = (TextView) linearLayout.getChildAt(0);
+                                    if (tv != null){
+                                        tv.setTextSize(80);
+                                    }
+                                }
+                                t.show();
+                            }
+                        });
                         startActivity(new Intent(QrCodeActivity.this, MainActivity.class));
+                        if (serialPortUtil != null){
+                            serialPortUtil.closeSerialPort();
+                        }
                         finish();
                     }
                 }

@@ -4,6 +4,19 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <Button
+        android:id="@+id/btnHome"
+        android:layout_width="150dp"
+        android:layout_height="60dp"
+        android:text="回到首页"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:background="@drawable/water_fill_pause_bg"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="25dp"/>
+    <Button
         android:id="@+id/btnStart"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
