@@ -1,12 +1,10 @@
 package com.example.a18145288.watermac.utils;
 
-import android.os.Looper;
 import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import android_serialport_api.SerialPort;
 
 /**
@@ -22,6 +20,7 @@ public class SerialPortUtil {
     private ReceiveThread mReceiveThread = null;
     private boolean isStart = false;
     private OnReceiveComMsg onReceiveComMsg;
+    private StringBuilder comStr = new StringBuilder();
 
     /**
      * 打开串口，接收数据
@@ -29,7 +28,7 @@ public class SerialPortUtil {
      */
     public void openSerialPort() {
         try {
-            serialPort = new SerialPort(new File("/dev/ttyS0"), 9600, 0);
+            serialPort = new SerialPort(new File("/dev/ttyS2"), 9600, 0);
             //调用对象SerialPort方法，获取串口中"读和写"的数据流
             inputStream = serialPort.getInputStream();
             outputStream = serialPort.getOutputStream();
@@ -48,6 +47,9 @@ public class SerialPortUtil {
     public void closeSerialPort() {
         try {
             isStart = false;
+            if (comStr != null){
+                comStr.setLength(0);
+            }
             if (inputStream != null) {
                 inputStream.close();
             }
@@ -107,7 +109,9 @@ public class SerialPortUtil {
         if (mReceiveThread == null) {
             mReceiveThread = new ReceiveThread();
         }
-        mReceiveThread.start();
+        if (!mReceiveThread.isAlive()){
+            mReceiveThread.start();
+        }
     }
 
     /**
@@ -128,8 +132,12 @@ public class SerialPortUtil {
                     if (size > 0) {
                         String readString = DataUtils.ByteArrToHex(readData, 0, size);
                         Log.i(TAG, "Receiver Msg:" + readString + " Thread Name:" + Thread.currentThread().getName());
-                        if (onReceiveComMsg != null){
-                            onReceiveComMsg.receiveComMsg(readString);
+                        if (onReceiveComMsg != null && comStr != null){
+                            comStr.append(readString);
+                            onReceiveComMsg.receiveComMsg(comStr);
+                            if (comStr != null){
+                                Log.i(TAG, "Com Msg:" + comStr.toString() + " Thread Name:" + Thread.currentThread().getName());
+                            }
                         }
                     }
 
@@ -141,7 +149,7 @@ public class SerialPortUtil {
     }
 
     public interface OnReceiveComMsg {
-        void receiveComMsg(String msg);
+        void receiveComMsg(StringBuilder msg);
     }
     public void setOnReceiveComMsg(OnReceiveComMsg onReceiveComMsg){
         this.onReceiveComMsg = onReceiveComMsg;

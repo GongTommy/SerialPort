@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
         serialPortUtil = new SerialPortUtil();
-        serialPortUtil.openSerialPort();
+
         createVpPics();
         createFullScreenPics();
         if (surfaceView != null && surfaceView.getHolder() != null){
@@ -206,7 +206,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         serialPortUtil.setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
             @Override
-            public void receiveComMsg(String msg) {
+            public void receiveComMsg(StringBuilder builder) {
+                if (builder == null){
+                    return;
+                }
+                String msg = builder.toString();
                 //接受串口消息
                 if (msg != null){
                     if(msg.contains("FC02") || msg.contains("fc02")){
@@ -431,6 +435,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btnStart:
                 sendComOrder(Constants.FILL_WATER_HEX);
+                if (serialPortUtil != null){
+                    serialPortUtil.openSerialPort();
+                }
                 break;
             case R.id.btnStop:
                 sendComOrder(Constants.PAUSE_WATER_HEX);
@@ -475,6 +482,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (serialPortUtil != null){
+            serialPortUtil.closeSerialPort();
+        }
         release();
         if (fullScrTimer != null){
             fullScrTimer.cancel();

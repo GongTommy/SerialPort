@@ -125,7 +125,11 @@ public class QrCodeActivity extends Activity {
         serialPortUtil.openSerialPort();
         serialPortUtil.setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
             @Override
-            public void receiveComMsg(String msg) {
+            public void receiveComMsg(StringBuilder builder) {
+                if (builder == null){
+                    return;
+                }
+                String msg = builder.toString();
                 //接受串口消息
                 if (msg != null){//避免多次跳转
                     if (msg.contains("FC01") || msg.contains("fc01")){
@@ -204,6 +208,9 @@ public class QrCodeActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (serialPortUtil != null){
+            serialPortUtil.closeSerialPort();
+        }
         if (fullScrTimer != null){
             fullScrTimer.cancel();
             fullScrTimer = null;
