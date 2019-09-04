@@ -11,13 +11,17 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.ThemedSpinnerAdapter;
+import android.widget.Toast;
 
 import com.example.a18145288.watermac.adapter.ImagesPagerAdapter;
 import com.example.a18145288.watermac.adapter.WatConAdapter;
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<View> watConViews;
     private ViewPager vpWatCon;
     private Button btnYield1, btnYield2;
+    private Button btnHome;
     private WatConAdapter watConAdapter;
     private IjkMediaPlayer mPlayer;
     private SurfaceView surfaceView;
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView ivMoney;
     private Timer fullScrTimer;
     private ImageView ivVideoBg;
-    private final int INTERVAL = 300 * 1000;
+    private final int INTERVAL = 5 * 60 * 1000;
     /**
      * 没有触摸屏幕的时间
      */
@@ -135,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Fresco.initialize(this);
         initFresco();
         
         initView();
@@ -156,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        watConViews.add(view2);
 //        watConViews.add(view3);
         watConViews.add(view4);
+        btnHome = view4.findViewById(R.id.btnHome);
         btnStart = view4.findViewById(R.id.btnStart);
         btnStop = view4.findViewById(R.id.btnStop);
 //        btnYield1 = view2.findViewById(R.id.btnYield1);
@@ -184,21 +189,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
         serialPortUtil = new SerialPortUtil();
-        serialPortUtil.openSerialPort();
+
         createVpPics();
         createFullScreenPics();
         if (surfaceView != null && surfaceView.getHolder() != null){
             surfaceView.getHolder().addCallback(callback);
         }
         createPlayer();
+        btnHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, QrCodeActivity.class));
+                finish();
+            }
+        });
 
         serialPortUtil.setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
             @Override
-            public void receiveComMsg(String msg) {
+            public void receiveComMsg(StringBuilder builder) {
+                if (builder == null){
+                    return;
+                }
+                String msg = builder.toString();
                 //接受串口消息
                 if (msg != null){
-                    if(msg.equals("FC02") || msg.equals("fc02")){
+                    if(msg.contains("FC02") || msg.contains("fc02")){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast t = Toast.makeText(getApplication(), "灌装结束", Toast.LENGTH_LONG);
+                                t.setGravity(Gravity.CENTER, 0, 0);
+                                LinearLayout linearLayout = (LinearLayout) t.getView();
+                                if (linearLayout != null){
+                                    TextView tv = (TextView) linearLayout.getChildAt(0);
+                                    if (tv != null){
+                                        tv.setTextSize(80);
+                                    }
+                                }
+                                t.show();
+                            }
+                        });
                         startActivity(new Intent(MainActivity.this, QrCodeActivity.class));
+                        if (serialPortUtil != null){
+                            serialPortUtil.closeSerialPort();
+                        }
                         finish();
                     }
                 }
@@ -401,6 +435,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btnStart:
                 sendComOrder(Constants.FILL_WATER_HEX);
+                if (serialPortUtil != null){
+                    serialPortUtil.openSerialPort();
+                }
                 break;
             case R.id.btnStop:
                 sendComOrder(Constants.PAUSE_WATER_HEX);
@@ -445,6 +482,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (serialPortUtil != null){
+            serialPortUtil.closeSerialPort();
+        }
         release();
         if (fullScrTimer != null){
             fullScrTimer.cancel();

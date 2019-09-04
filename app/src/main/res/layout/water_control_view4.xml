@@ -4,17 +4,30 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <Button
+        android:id="@+id/btnHome"
+        android:layout_width="160dp"
+        android:layout_height="60dp"
+        android:text="回到支付页"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:background="@drawable/water_fill_pause_bg"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="25dp"/>
+    <Button
         android:id="@+id/btnStart"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginLeft="150dp"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
-        android:textSize="40sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="60sp"
         android:textStyle="bold"
         android:textColor="@color/white"
-        android:background="@drawable/water_fill_start_bg"
+        android:background="@drawable/water_fill_start_bg_circle"
         android:text="@string/fill_water"/>
     <Button
         android:id="@+id/btnStop"
@@ -22,12 +35,39 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginRight="150dp"
-        android:layout_width="250dp"
-        android:layout_height="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="@string/pause"
-        android:textSize="40sp"
+        android:textSize="60sp"
         android:textStyle="bold"
         android:textColor="@color/white"
-        android:background="@drawable/water_fill_pause_bg"
+        android:background="@drawable/water_pause_bg_circle"
         />
+    <!--<Button-->
+        <!--android:id="@+id/btnStart"-->
+        <!--app:layout_constraintTop_toTopOf="parent"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--android:layout_marginLeft="150dp"-->
+        <!--android:layout_width="250dp"-->
+        <!--android:layout_height="100dp"-->
+        <!--android:textSize="40sp"-->
+        <!--android:textStyle="bold"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:background="@drawable/water_fill_start_bg"-->
+        <!--android:text="@string/fill_water"/>-->
+    <!--<Button-->
+        <!--android:id="@+id/btnStop"-->
+        <!--app:layout_constraintTop_toTopOf="parent"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintRight_toRightOf="parent"-->
+        <!--android:layout_marginRight="150dp"-->
+        <!--android:layout_width="250dp"-->
+        <!--android:layout_height="100dp"-->
+        <!--android:text="@string/pause"-->
+        <!--android:textSize="40sp"-->
+        <!--android:textStyle="bold"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:background="@drawable/water_fill_pause_bg"-->
+        <!--/>-->
 </android.support.constraint.ConstraintLayout>

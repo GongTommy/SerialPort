@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import android_serialport_api.SerialPort;
 
 /**
@@ -21,6 +20,7 @@ public class SerialPortUtil {
     private ReceiveThread mReceiveThread = null;
     private boolean isStart = false;
     private OnReceiveComMsg onReceiveComMsg;
+    private StringBuilder comStr = new StringBuilder();
 
     /**
      * 打开串口，接收数据
@@ -28,7 +28,7 @@ public class SerialPortUtil {
      */
     public void openSerialPort() {
         try {
-            serialPort = new SerialPort(new File("/dev/ttyS0"), 9600, 0);
+            serialPort = new SerialPort(new File("/dev/ttyS2"), 9600, 0);
             //调用对象SerialPort方法，获取串口中"读和写"的数据流
             inputStream = serialPort.getInputStream();
             outputStream = serialPort.getOutputStream();
@@ -45,15 +45,17 @@ public class SerialPortUtil {
      * 关闭串口中的输入输出流
      */
     public void closeSerialPort() {
-        Log.i("test", "关闭串口");
         try {
+            isStart = false;
+            if (comStr != null){
+                comStr.setLength(0);
+            }
             if (inputStream != null) {
                 inputStream.close();
             }
             if (outputStream != null) {
                 outputStream.close();
             }
-            isStart = false;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,10 +107,11 @@ public class SerialPortUtil {
 
     private void getSerialPort() {
         if (mReceiveThread == null) {
-
             mReceiveThread = new ReceiveThread();
         }
-        mReceiveThread.start();
+        if (!mReceiveThread.isAlive()){
+            mReceiveThread.start();
+        }
     }
 
     /**
@@ -119,32 +122,34 @@ public class SerialPortUtil {
         public void run() {
             super.run();
             while (isStart) {
+                Log.i(TAG, "Thread Name:" + Thread.currentThread().getName());
                 if (inputStream == null) {
                     return;
                 }
                 byte[] readData = new byte[1024];
-                try {//
+                try {
                     int size = inputStream.read(readData);
-                    Log.i(TAG, "size:" + size);
-                    for(int i = 0; i < size; i++){
-                        Log.i(TAG, "item" + i + ":" + readData[i]);
-                    }
                     if (size > 0) {
                         String readString = DataUtils.ByteArrToHex(readData, 0, size);
-                        onReceiveComMsg.receiveComMsg(readString);
-                        Log.i(TAG, "receiver msg :" + readString);
+                        Log.i(TAG, "Receiver Msg:" + readString + " Thread Name:" + Thread.currentThread().getName());
+                        if (onReceiveComMsg != null && comStr != null){
+                            comStr.append(readString);
+                            onReceiveComMsg.receiveComMsg(comStr);
+                            if (comStr != null){
+                                Log.i(TAG, "Com Msg:" + comStr.toString() + " Thread Name:" + Thread.currentThread().getName());
+                            }
+                        }
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-
         }
     }
 
     public interface OnReceiveComMsg {
-        void receiveComMsg(String msg);
+        void receiveComMsg(StringBuilder msg);
     }
     public void setOnReceiveComMsg(OnReceiveComMsg onReceiveComMsg){
         this.onReceiveComMsg = onReceiveComMsg;
