@@ -188,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        bottleSize.setOnClickListener(this);
         btnStart.setOnClickListener(this);
         btnStop.setOnClickListener(this);
-        serialPortUtil = new SerialPortUtil();
 
         createVpPics();
         createFullScreenPics();
@@ -204,9 +203,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        serialPortUtil = new SerialPortUtil();
+        serialPortUtil.openSerialPort();
         serialPortUtil.setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
             @Override
-            public void receiveComMsg(StringBuilder builder) {
+            public void receiveComMsg(StringBuffer builder) {
+                Log.i("SerialPortUtil", "Activity3");
                 if (builder == null){
                     return;
                 }
@@ -214,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //接受串口消息
                 if (msg != null){
                     if(msg.contains("FC02") || msg.contains("fc02")){
+                        Log.i("SerialPortUtil", "Activity4:" + msg);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -435,9 +438,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btnStart:
                 sendComOrder(Constants.FILL_WATER_HEX);
-                if (serialPortUtil != null){
-                    serialPortUtil.openSerialPort();
-                }
                 break;
             case R.id.btnStop:
                 sendComOrder(Constants.PAUSE_WATER_HEX);

@@ -20,7 +20,6 @@ public class SerialPortUtil {
     private ReceiveThread mReceiveThread = null;
     private boolean isStart = false;
     private OnReceiveComMsg onReceiveComMsg;
-    private StringBuilder comStr = new StringBuilder();
 
     /**
      * 打开串口，接收数据
@@ -47,8 +46,8 @@ public class SerialPortUtil {
     public void closeSerialPort() {
         try {
             isStart = false;
-            if (comStr != null){
-                comStr.setLength(0);
+            if (Constants.COM_STRS != null){
+                Constants.COM_STRS.setLength(0);
             }
             if (inputStream != null) {
                 inputStream.close();
@@ -132,11 +131,11 @@ public class SerialPortUtil {
                     if (size > 0) {
                         String readString = DataUtils.ByteArrToHex(readData, 0, size);
                         Log.i(TAG, "Receiver Msg:" + readString + " Thread Name:" + Thread.currentThread().getName());
-                        if (onReceiveComMsg != null && comStr != null){
-                            comStr.append(readString);
-                            onReceiveComMsg.receiveComMsg(comStr);
-                            if (comStr != null){
-                                Log.i(TAG, "Com Msg:" + comStr.toString() + " Thread Name:" + Thread.currentThread().getName());
+                        if (onReceiveComMsg != null && Constants.COM_STRS != null){
+                            Constants.COM_STRS.append(readString);
+                            onReceiveComMsg.receiveComMsg(Constants.COM_STRS);
+                            if (Constants.COM_STRS != null){
+                                Log.i(TAG, "Com Msg:" + Constants.COM_STRS.toString() + " Thread Name:" + Thread.currentThread().getName());
                             }
                         }
                     }
@@ -149,7 +148,7 @@ public class SerialPortUtil {
     }
 
     public interface OnReceiveComMsg {
-        void receiveComMsg(StringBuilder msg);
+        void receiveComMsg(StringBuffer msg);
     }
     public void setOnReceiveComMsg(OnReceiveComMsg onReceiveComMsg){
         this.onReceiveComMsg = onReceiveComMsg;

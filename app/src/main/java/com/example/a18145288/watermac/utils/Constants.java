@@ -45,4 +45,9 @@ public class Constants {
      * 灌装结束
      */
     public static final String FILL_WATER_FINISH = "fc02";
+
+    /**
+     * 共享指令
+     */
+    public static final StringBuffer COM_STRS = new StringBuffer();
 }
