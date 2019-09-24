@@ -51,8 +51,8 @@
             android:layout_marginTop="200dp"
             android:layout_centerHorizontal="true"
             android:src="@mipmap/next_normal"
-            android:layout_width="400dp"
-            android:layout_height="150dp" />
+            android:layout_width="700dp"
+            android:layout_height="140dp" />
     </RelativeLayout>
     <ImageView
         android:src="@mipmap/pay_logo"

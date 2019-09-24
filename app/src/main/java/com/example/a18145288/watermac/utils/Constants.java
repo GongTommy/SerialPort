@@ -37,6 +37,14 @@ public class Constants {
      * 瓶装大水量
      */
     public static final String BOTTLE_BIG_HEX = "fc08";
+	/**
+	 * 消毒开始
+	 */
+	public static final String STERILIZE_START = "fc09";
+	/**
+	 * 消毒结束
+	 */
+	public static final String STERILIZE_STOP = "fc0a";
     /**
      * 支付成功
      */
@@ -50,4 +58,7 @@ public class Constants {
      * 共享指令
      */
     public static final StringBuffer COM_STRS = new StringBuffer();
+	
+	
+	 
 }

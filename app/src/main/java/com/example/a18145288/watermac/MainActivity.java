@@ -1,6 +1,7 @@
 package com.example.a18145288.watermac;
 
 import android.content.ComponentCallbacks2;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -20,9 +21,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ThemedSpinnerAdapter;
 import android.widget.Toast;
-
 import com.example.a18145288.watermac.adapter.ImagesPagerAdapter;
 import com.example.a18145288.watermac.adapter.WatConAdapter;
 import com.example.a18145288.watermac.utils.Constants;
@@ -59,14 +58,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ViewPager vpPics;
     private Button btnStart, btnStop;
     private Button barrelSize, bottleSize;
-    private SerialPortUtil serialPortUtil;
     private int startTimes = 0;
     private int stopTimes = 0;
     private ViewPager vpFullAds;
     private ImageView ivMoney;
     private Timer fullScrTimer;
     private ImageView ivVideoBg;
-    private final int INTERVAL = 5 * 60 * 1000;
+    private final int INTERVAL = 2 * 60 * 1000;
     /**
      * 没有触摸屏幕的时间
      */
@@ -141,12 +139,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initFresco();
-        
+
         initView();
         initData();
     }
 
     private void initView() {
+        vpWatCon = findViewById(R.id.vpWatCon);
         ivVideoBg = findViewById(R.id.ivVideoBg);
         vpFullAds = findViewById(R.id.vpFullAds);
         vpPics = findViewById(R.id.vpPics);
@@ -178,7 +177,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initData() {
-        vpWatCon = findViewById(R.id.vpWatCon);
         watConAdapter = new WatConAdapter(watConViews);
         vpWatCon.setAdapter(watConAdapter);
 //        btnYield1.setOnClickListener(this);
@@ -203,9 +201,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        serialPortUtil = new SerialPortUtil();
-        serialPortUtil.openSerialPort();
-        serialPortUtil.setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
+        SerialPortUtil.getInstance().setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
             @Override
             public void receiveComMsg(StringBuffer builder) {
                 Log.i("SerialPortUtil", "Activity3");
@@ -233,9 +229,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         });
                         startActivity(new Intent(MainActivity.this, QrCodeActivity.class));
-                        if (serialPortUtil != null){
-                            serialPortUtil.closeSerialPort();
-                        }
                         finish();
                     }
                 }
@@ -470,7 +463,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    serialPortUtil.sendHexSerialPort(order);
                     try {
                         Thread.sleep(100);
-                        serialPortUtil.sendHexSerialPort(order);
+                        SerialPortUtil.getInstance().sendHexSerialPort(order);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -482,9 +475,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (serialPortUtil != null){
-            serialPortUtil.closeSerialPort();
-        }
         release();
         if (fullScrTimer != null){
             fullScrTimer.cancel();
@@ -554,6 +544,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
     }
-
 
 }

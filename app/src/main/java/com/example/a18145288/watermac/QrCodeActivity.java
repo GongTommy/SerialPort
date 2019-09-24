@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -22,7 +23,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.a18145288.watermac.adapter.ImagesPagerAdapter;
 import com.example.a18145288.watermac.utils.SerialPortUtil;
 import com.facebook.cache.disk.DiskCacheConfig;
@@ -35,7 +35,6 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.facebook.imagepipeline.core.ImagePipelineFactory;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -45,12 +44,13 @@ import java.util.TimerTask;
 
 public class QrCodeActivity extends Activity {
     private static final String TAG = "QrCodeActivity";
-    private SerialPortUtil serialPortUtil;
+    private AudioManager audioManager;
     private ImageView ivQrCode;
     private ImageView ivNext;
     private ViewPager vpFullAds;
     private Timer fullScrTimer;
-    private final int INTERVAL = 300 * 1000;
+    private int INTERVAL = 2 * 60 * 1000;
+    private long START_TIME;
     /**
      * 没有触摸屏幕的时间
      */
@@ -76,8 +76,8 @@ public class QrCodeActivity extends Activity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (mActivity != null){
-                QrCodeActivity mainActivity = mActivity.get();
-                mainActivity.switchVpFullAds();
+                QrCodeActivity qrCodeActivity = mActivity.get();
+                qrCodeActivity.switchVpFullAds();
             }
         }
     }
@@ -97,13 +97,23 @@ public class QrCodeActivity extends Activity {
         initData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        START_TIME = System.currentTimeMillis();
+        INTERVAL = 10 * 1000;
+        muteMusic();
+    }
+
     private void initView() {
         vpFullAds = findViewById(R.id.vpFullAds);
         ivNext = findViewById(R.id.ivNext);
+//        ivNext.setVisibility(View.INVISIBLE);
         ivQrCode = findViewById(R.id.ivQrCode);
     }
 
     private void initData() {
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         createFullScreenPics();
         ivNext.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -121,9 +131,7 @@ public class QrCodeActivity extends Activity {
                 return false;
             }
         });
-        serialPortUtil = new SerialPortUtil();
-        serialPortUtil.openSerialPort();
-        serialPortUtil.setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
+        SerialPortUtil.getInstance().setOnReceiveComMsg(new SerialPortUtil.OnReceiveComMsg() {
             @Override
             public void receiveComMsg(StringBuffer builder) {
                 Log.i("SerialPortUtil", "Activity1");
@@ -133,6 +141,15 @@ public class QrCodeActivity extends Activity {
                 String msg = builder.toString();
                 //接受串口消息
                 if (msg != null){//避免多次跳转
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            long currentTime = System.currentTimeMillis();
+                            if (ivNext != null && (currentTime - START_TIME > 3000)){
+                                ivNext.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
                     if (msg.contains("FC01") || msg.contains("fc01")){
                         Log.i("SerialPortUtil", "Activity2:" + msg);
                         runOnUiThread(new Runnable() {
@@ -151,14 +168,29 @@ public class QrCodeActivity extends Activity {
                             }
                         });
                         startActivity(new Intent(QrCodeActivity.this, MainActivity.class));
-                        if (serialPortUtil != null){
-                            serialPortUtil.closeSerialPort();
-                        }
                         finish();
                     }
                 }
             }
         });
+    }
+
+    /**
+     * 设置静音，防止灌装页关闭声音失败
+     */
+    private void muteMusic(){
+        if (audioManager != null){
+            audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+        }
+    }
+
+    /**
+     * 取消静音
+     */
+    private void cancelMuteMusic(){
+        if (audioManager != null){
+            audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+        }
     }
 
     /**
@@ -195,6 +227,7 @@ public class QrCodeActivity extends Activity {
                             if (vpFullAds.getVisibility() != View.VISIBLE){
                                 vpFullAds.setVisibility(View.VISIBLE);
                                 noTouchTime = 0;
+                                INTERVAL = 2 * 60 * 1000;
                                 if (fullPicsHandler != null){
                                     fullPicsHandler.sendEmptyMessageDelayed(0, 5000);//实现viewpager的轮播效果。
                                 }
@@ -210,9 +243,7 @@ public class QrCodeActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (serialPortUtil != null){
-            serialPortUtil.closeSerialPort();
-        }
+        cancelMuteMusic();
         if (fullScrTimer != null){
             fullScrTimer.cancel();
             fullScrTimer = null;

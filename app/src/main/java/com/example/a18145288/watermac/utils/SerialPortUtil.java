@@ -21,6 +21,16 @@ public class SerialPortUtil {
     private boolean isStart = false;
     private OnReceiveComMsg onReceiveComMsg;
 
+    private SerialPortUtil(){
+
+    }
+    public static SerialPortUtil getInstance(){
+        return SingleTool.instance;
+    }
+    private static class SingleTool {
+        private static final SerialPortUtil instance = new SerialPortUtil();
+    }
+
     /**
      * 打开串口，接收数据
      * 通过串口，接收单片机发送来的数据
